@@ -6,13 +6,8 @@
 #  This is my first ever Python program, so be easy on me!!
 #
 #  Instructions:
-#  1) Use the variable xmlin to define the path and filename of your input svg file.
-#  2) Use the variable outFile to define the path and filename of your output csv polygon file.
-#  3) Use the variable colorFile to define the path and filename of your output csv color palette file.
-#  4) Run the program. Your csv files will be written and you can then visualize them in Tableau.
 #
 #  This code is in the public domain
-#
 
 from xml.dom import minidom
 from base64 import b16encode
@@ -23,10 +18,12 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import *
  
+# Prompt for the input file.
 def get_file():
     root = Tk()
     root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select File",filetypes = (("Scalable Vector Graphic","*.svg"),("All Files","*.*")))
     root.withdraw()
+
     return root.filename 
 
 # Convert RGB Color Values to Hex.
@@ -35,6 +32,7 @@ def convertRGBtoHex (Red, Green, Blue):
     colorHex = b'#'+ b16encode(bytes(triplet))
     colorHex = str(colorHex)
     colorHex = colorHex[2:len(colorHex)-1]
+    
     return colorHex;
 
 # Get the Hex color from the fill color string for the svg object.
@@ -45,7 +43,7 @@ def getColorHex (RGBString):
     Green = int(rgbList[1])
     Blue = int(rgbList[2])
     colorHex = str(convertRGBtoHex(Red, Green, Blue))
-
+    
     return colorHex;
 
 # Use parametric equations to generate 100 points for an ellipse.
@@ -102,18 +100,22 @@ def processRectangleObject (xmlString, shapeCounter):
     height = int(s.attributes['height'].value)
     width = int(s.attributes['width'].value)
 
+    # Write point # 1
     outString = 'Rectangle,' + str(shapeCounter) + ',1,' + str(x) + ',' + str(y) + ',' + colorHex
     out.write (outString)
     out.write('\n')
 
+    # Write point # 2
     outString = 'Rectangle,' + str(shapeCounter) + ',2,' + str(x+width) + ',' + str(y) + ',' + colorHex
     out.write (outString)
     out.write('\n')
 
+    # Write point # 3
     outString = 'Rectangle,' + str(shapeCounter) + ',3,' + str(x+width) + ',' + str(y+height) + ',' + colorHex
     out.write (outString)
     out.write('\n')
 
+    # Write point # 4
     outString = 'Rectangle,' + str(shapeCounter) + ',4,' + str(x) + ',' + str(y+height) + ',' + colorHex
     out.write (outString)
     out.write('\n')
@@ -159,7 +161,7 @@ def processEllipseObject (xmlString, shapeCounter):
 
     pos = transform.find('translate')
     if pos >=0:
-        # Process Translation (this will give us an adjusted center point)
+        # Get Translation Details (this will give us an adjusted center point)
         translation = transform[pos+10:]
         pos2 = translation.find(')')
         translation = translation[:pos2]
@@ -237,10 +239,7 @@ def processPolygonObject (xmlString, shapeCounter):
     return '';
 
 # Main processing routine.
-# Open the input and output files.
-
 # Prompt for SVG file.
-#xmlin = 'C:\\Ken\\Junk\\Geometrize\\Angel.svg'
 xmlin = get_file()
 if xmlin == "":
     messagebox.showinfo("Error", "No file selected. Program will now quit.")
